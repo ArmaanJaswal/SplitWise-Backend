@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import JWT_SECRET from '../config/env'
 
 
-const authMiddleware =(req:Request,res:Response,next:NextFunction)=>{
+export const authMiddleware =(req:Request,res:Response,next:NextFunction)=>{
     try{
         const token = req.cookies?.["auth-token"];
         
