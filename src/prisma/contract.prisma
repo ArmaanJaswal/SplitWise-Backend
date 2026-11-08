@@ -1,0 +1,67 @@
+// use prisma-8
+
+model User{
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String
+  name String
+  memberships GroupMember[]
+  expensesPaid Expense[]
+  splits ExpenseSplit[]
+  settlementsSent Settlement[] @relation("settlementSender")
+  settlementsReceived Settlement[] @relation("settlementReceiver")
+  createdAt DateTime @default(now())
+
+}
+
+model Group{
+  id Int @id @default(autoincrement())
+  name String
+  members GroupMember[]
+  expenses Expense[]
+  settlements Settlement[]
+  createdAt DateTime @default(now())
+}
+
+model GroupMember{
+  userId Int
+  user User @relation(fields:[userId],references:[id])
+  groupId Int
+  group Group @relation(fields:[groupId],references:[id],onDelete:Cascade)
+  joinedAt DateTime @default(now())
+  @@id([groupId,userId])
+}
+
+model Expense{
+  id Int @id @default(autoincrement())
+  groupId Int
+  group Group @relation(fields:[groupId],references:[id],onDelete:Cascade)
+  paidById Int
+  paidBy User @relation(fields:[paidById],references:[id])
+  name String
+  amountMinor Int
+  splits ExpenseSplit[]
+  spentAt DateTime @default(now())
+}
+
+model Settlement{
+  id Int @id @default(autoincrement())
+  groupId Int
+  group Group @relation(fields:[groupId],references:[id],onDelete:Cascade)
+  fromUserId Int
+  fromUser User @relation("settlementSender",fields:[fromUserId],references:[id])
+  toUserId Int
+  toUser User @relation("settlementReceiver",fields:[toUserId],references:[id])
+  amountMinor Int
+  settledAt DateTime @default(now())
+}
+
+
+model ExpenseSplit{
+  expenseId Int
+  expense Expense @relation(fields:[expenseId],references:[id],onDelete:Cascade)
+  userId Int
+  user User @relation(fields:[userId],references:[id])
+  shareMinor Int
+  @@id([expenseId,userId])
+}
